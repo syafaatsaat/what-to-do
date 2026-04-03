@@ -1,11 +1,8 @@
 import "./styles.css";
-import { greeting } from "./greeting.js";
 
-if (process.env.NODE_ENV !== 'production') {
-    console.log('Looks like we are in development mode!');
-}
-
-console.log(greeting);
+// if (process.env.NODE_ENV !== 'production') {
+//     console.log('Looks like we are in development mode!');
+// }
 
 // import odinImage from "./odin.png";
 
@@ -13,3 +10,4 @@ console.log(greeting);
 // image.src = odinImage;
 
 // document.body.appendChild(image);
+
