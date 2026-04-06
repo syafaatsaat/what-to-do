@@ -55,7 +55,16 @@ p {
   grid-column: 2 / 3;
   grid-row: 2 / 3;
 
+  overflow: auto;
   padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 200px;
+  gap: 20px;
+}
+
+#tasks > button {
+  height: 200px;
 }
 
 #description {
