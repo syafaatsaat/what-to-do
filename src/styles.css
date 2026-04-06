@@ -1,3 +1,77 @@
 body {
-  background-color: rebeccapurple;
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+h1, 
+h2, 
+p {
+  padding: 0;
+  margin: 0;
+}
+
+#container {
+  height: 100%;
+  width: 100%;
+
+  display: grid;
+  grid-template-columns: 250px auto 300px;
+  grid-template-rows: 100px auto 75px;
+}
+
+#projects {
+  background-color: aquamarine;
+  grid-column: 1 / 2;
+  grid-row: 1 / 3;
+
+  padding: 20px;
+}
+
+#navbar {
+  background-color: lightcoral;
+  padding: 20px;
+
+  grid-column: 2 / 4;
+  grid-row: 1 / 2;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#navbar > div {
+  display: flex;
+  flex-direction: row;
+  gap: 50px;
+}
+
+#tasks {
+  background-color: cadetblue;
+  grid-column: 2 / 3;
+  grid-row: 2 / 3;
+
+  padding: 20px;
+}
+
+#description {
+  background-color: cornflowerblue;
+  grid-column: 3 / 4;
+  grid-row: 2 / 3;
+
+  padding: 20px;
+}
+
+#footer {
+  background-color: darkgrey;
+  grid-column: 1 / 4;
+  grid-row: 3 / 4;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
