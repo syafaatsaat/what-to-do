@@ -35,6 +35,32 @@ textarea {
   grid-row: 1 / 3;
 
   padding: 20px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+#new-project-btn {
+  height: 50px;
+}
+
+#projects > * {
+  width: 100%;
+}
+
+#project-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#project-list > button {
+  width: 100%;
+  height: 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 #navbar {

@@ -2,21 +2,32 @@ class DialogManager {
     constructor() {
         this.projectDialog = document.querySelector("#project-dialog");
         this.projectForm = document.querySelector("#project-form");
+        
+        this.setupEvents();
     }
 
     setupEvents() {
         // project
         this.projectDialog.addEventListener("close", () => {
             this.projectForm.reset();
+            document.querySelector("#hidden-project-id").value = "";
         });
     }
 
     openProjectModal() {
+        document.querySelector("#create-project-btn").textContent = "Create";
         this.projectDialog.showModal();
     }
-
+    
     closeProjectModal() {
         this.projectDialog.close();
+    }
+    
+    openProjectModalForEdit(projectToEdit) {
+        document.querySelector("#create-project-btn").textContent = "Save";
+        document.querySelector("#project-title").value = projectToEdit.title;
+        document.querySelector("#hidden-project-id").value = projectToEdit.id;
+        this.projectDialog.showModal();
     }
 }
 
@@ -66,6 +77,16 @@ class Renderer {
         });
     }
 
+    updateProject(data) {
+        const projectElement = document.querySelector(`[data-project-id="${data.id}"]`);
+        if (projectElement) {
+            const titleSpan = projectElement.querySelector(".project-title");
+            const currentProject = document.querySelector("#current-project");
+            titleSpan.textContent = data.title;
+            currentProject.textContent = data.title;
+        }
+    }
+
     renderTasks(project, selectedTaskID) {
     }
 }
@@ -102,6 +123,10 @@ export class ScreenController {
         this.projectForm.addEventListener("submit", (e) => {
             this.projectSubmitHandler(e)
         });
+
+        this.projectDiv.addEventListener("click", (e) => {
+            this.projectDivHandler(e)
+        });
     }
 
     projectSubmitHandler(e) {
@@ -111,7 +136,11 @@ export class ScreenController {
 
         if (formData.projectID) {
             // edit project
+            if (!this.logic.editProject(formData.projectID, formData))
+                return;
 
+            const project = this.logic.storage.getProjectByID(formData.projectID);
+            this.renderer.updateProject(project);
         }
         else {
             // create project
@@ -136,6 +165,36 @@ export class ScreenController {
         );
         if (newProject) {
             newProject.classList.add("active");
+        }
+    }
+
+    projectDivHandler(e) {
+        e.preventDefault();
+
+        const projectBtn = e.target.closest(".project-btn");
+        if (!projectBtn)
+            return;
+
+        const editBtn = e.target.closest(".edit-project-btn");
+        const deleteBtn = e.target.closest(".delete-project-btn");
+        const project = this.logic.storage.getProjectByID(projectBtn.dataset.projectId);
+
+        if (editBtn) {
+            this.dialogManager.openProjectModalForEdit(project);
+            return;
+        }
+
+        if (deleteBtn) {
+            console.log("delete");
+            return;
+        }
+
+        if (projectBtn && (this.currentProjectID !== project.id)) {
+            this.currentProjectID = project.id;
+            this.renderer.updateProject(project);
+            //this.renderer.renderProjects(project, this.)
+            this.swapProjectState(project.id);
+            return;
         }
     }
 }
