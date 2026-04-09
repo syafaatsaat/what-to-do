@@ -19,4 +19,11 @@ export class Application {
 
         return true;
     }
+
+    deleteProject(projectID) {
+        if (!this.storage.deleteProject(projectID))
+            return;
+
+        return true;
+    }
 }

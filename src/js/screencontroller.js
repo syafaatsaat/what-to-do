@@ -3,6 +3,8 @@ class DialogManager {
         this.projectDialog = document.querySelector("#project-dialog");
         this.projectForm = document.querySelector("#project-form");
         
+        this.deleteDialog = document.querySelector("#delete-dialog");
+
         this.setupEvents();
     }
 
@@ -11,6 +13,9 @@ class DialogManager {
         this.projectDialog.addEventListener("close", () => {
             this.projectForm.reset();
             document.querySelector("#hidden-project-id").value = "";
+        });
+        this.deleteDialog.addEventListener("close", () => {
+            document.querySelector("#delete-confirm-btn").dataset.projectId = "";
         });
     }
 
@@ -23,11 +28,22 @@ class DialogManager {
         this.projectDialog.close();
     }
     
-    openProjectModalForEdit(projectToEdit) {
+    openProjectModalForEdit(project) {
         document.querySelector("#create-project-btn").textContent = "Save";
-        document.querySelector("#project-title").value = projectToEdit.title;
-        document.querySelector("#hidden-project-id").value = projectToEdit.id;
+        document.querySelector("#project-title").value = project.title;
+        document.querySelector("#hidden-project-id").value = project.id;
         this.projectDialog.showModal();
+    }
+
+    openDeleteProjectModal(project) {
+        document.querySelector("#delete-confirm-btn").dataset.projectId = project.id;
+        document.querySelector("#delete-title").textContent = project.title;
+        document.querySelector("#delete-type").textContent = "project";
+        this.deleteDialog.showModal();
+    }
+
+    closeDeleteModal() {
+        this.deleteDialog.close();
     }
 }
 
@@ -77,7 +93,7 @@ class Renderer {
         });
     }
 
-    updateProject(data) {
+    updateProjectView(data) {
         const projectElement = document.querySelector(`[data-project-id="${data.id}"]`);
         if (projectElement) {
             const titleSpan = projectElement.querySelector(".project-title");
@@ -87,7 +103,75 @@ class Renderer {
         }
     }
 
+    removeProjectView(project) {
+        const projectElement = document.querySelector(`[data-project-id="${project.id}"]`);
+        if (!projectElement)
+            return;
+
+        projectElement.remove();
+        return true;
+    }
+
     renderTasks(project, selectedTaskID) {
+        const newTaskBtn = document.querySelector("#new-task-btn");
+        this.taskDiv.replaceChildren();
+
+        if (!project) {
+            document.querySelector("#current-project").textContent = "";
+            newTaskBtn.disabled = true;
+            return;
+        }
+        
+        document.querySelector("#current-project").textContent = project.title;
+        newTaskBtn.disabled = false;
+        if (!project.tasks) {
+            const noTaskP = document.createElement("p");
+            noTaskP.textContent = "No task for now :)";
+            this.taskDiv.appendChild(noTaskP);
+
+            return;
+        }
+
+        // todo: render every task from project.tasks
+    }
+
+    renderTaskDescription(task) {
+        const descriptionDiv = document.querySelector("#description");
+        descriptionDiv.replaceChildren();
+        
+        if (!task)
+            return;
+
+        const titleH4 = document.createElement("h4");
+        titleH4.textContent = "Title: ";
+        const titleSpan = document.createElement("span");
+        titleSpan.textContent = task.title;
+        titleH4.appendChild(titleSpan);
+
+        const dueDateH4 = document.createElement("h4");
+        dueDateH4.textContent = "Due Date: ";
+        const dueDateSpan = document.createElement("span");
+        dueDateSpan.textContent = task.dueDate;
+        dueDateH4.appendChild(dueDateSpan);
+
+        const priorityH4 = document.createElement("h4");
+        priorityH4.textContent = "Priority: ";
+        const prioritySpan = document.createElement("span");
+        prioritySpan.textContent = task.priority;
+        priorityH4.appendChild(prioritySpan);
+
+        const descriptionH4 = document.createElement("h4");
+        descriptionH4.textContent = "Description: ";
+        const descriptionSpan = document.createElement("span");
+        descriptionSpan.textContent = task.description;
+        descriptionH4.appendChild(descriptionSpan);
+
+        descriptionDiv.appendChild(titleH4);
+        descriptionDiv.appendChild(dueDateH4);
+        descriptionDiv.appendChild(priorityH4);
+        descriptionDiv.appendChild(descriptionH4);
+
+        return true;
     }
 }
 
@@ -107,7 +191,19 @@ export class ScreenController {
         this.projectBtn = document.querySelector(".project-btn");
         this.projectForm = document.querySelector("#project-form");
     
+        // delete
+        this.confirmDeleteBtn = document.querySelector("#delete-confirm-btn");
+        this.closeDeleteBtn = document.querySelector("#delete-close-btn");
+
+        // tasks
+        this.taskDiv = document.querySelector("#tasks");
+        this.newTaskBtn = document.querySelector("#new-task-btn");
+        this.cancelTaskBtn = document.querySelector("#task-close-btn");
+        this.createTaskBtn = document.querySelector("#task-create-btn");
+        this.taskForm = document.querySelector("#task-form");
+
         this.setupEvents();
+        this.init();
     }
 
     setupEvents() {
@@ -127,12 +223,30 @@ export class ScreenController {
         this.projectDiv.addEventListener("click", (e) => {
             this.projectDivHandler(e)
         });
+
+        // delete
+        this.confirmDeleteBtn.addEventListener("click", (e) => {
+            this.deleteProjectHandler(e);
+            // todo: deleteTaskHandler
+        });
+        this.closeDeleteBtn.addEventListener("click", () => {
+            this.dialogManager.closeDeleteModal();
+        });
+
+        // todo: task buttons listeners
+
+    }
+
+    init() {
+        if (!this.logic.storage.vault)
+            return;
+
+        this.renderer.renderProjects(this.logic.storage.vault);
     }
 
     projectSubmitHandler(e) {
         e.preventDefault();
         const formData = Object.fromEntries(new FormData(this.projectForm));
-        console.log(formData);
 
         if (formData.projectID) {
             // edit project
@@ -140,7 +254,7 @@ export class ScreenController {
                 return;
 
             const project = this.logic.storage.getProjectByID(formData.projectID);
-            this.renderer.updateProject(project);
+            this.renderer.updateProjectView(project);
         }
         else {
             // create project
@@ -148,6 +262,7 @@ export class ScreenController {
             
             this.currentProjectID = newProject.id;
             this.renderer.renderProjects(this.logic.storage.vault, this.currentProjectID);
+            this.renderer.renderTasks(newProject, this.currentTaskID);
             this.swapProjectState(newProject.id);
         }
 
@@ -185,16 +300,40 @@ export class ScreenController {
         }
 
         if (deleteBtn) {
-            console.log("delete");
+            this.dialogManager.openDeleteProjectModal(project);
             return;
         }
 
         if (projectBtn && (this.currentProjectID !== project.id)) {
             this.currentProjectID = project.id;
-            this.renderer.updateProject(project);
-            //this.renderer.renderProjects(project, this.)
+            this.renderer.renderTasks(project, this.currentTaskID);
             this.swapProjectState(project.id);
             return;
         }
+    }
+
+    deleteProjectHandler(e) {
+        e.preventDefault();
+        if (!e.target.dataset.projectId)
+            return;
+
+        const projectID = e.target.dataset.projectId;
+        const project = this.logic.storage.getProjectByID(projectID);
+
+        if (!this.logic.deleteProject(project.id))
+            return;
+
+        if (!this.renderer.removeProjectView(project))
+            return;
+
+        if (project.tasks.find(task => task.id === this.currentTaskID))
+            this.renderer.renderTaskDescription(null);
+
+        if (this.currentProjectID === project.id) {
+            this.currentProjectID = null;
+            this.renderer.renderTasks(null);
+        }
+
+        this.dialogManager.closeDeleteModal();
     }
 }

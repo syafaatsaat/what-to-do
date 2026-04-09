@@ -17,8 +17,8 @@
         </div>
         <div id="navbar">
             <div id="project-controls">
-                <h2 id="current-project">Project Title</h2>
-                <button>New Task</button>
+                <h2 id="current-project"></h2>
+                <button id="new-task-btn" disabled>New Task</button>
             </div>
             <div>
                 <p>Img</p>
@@ -26,10 +26,8 @@
             </div>
         </div>
         <div id="tasks">
-            <p>No task for now :)</p>
         </div>
         <div id="description">
-            <h2>Description</h2>
         </div>
         <div id="footer">
             <p>Made by syafaat_saat</p>
@@ -79,10 +77,23 @@
                 </div>
             </div>
             <div class="form-row">
-                <button>Cancel</button>
-                <button>Create</button>
+                <button type="button" id="cancel-task-btn">Cancel</button>
+                <button type="submit" id="create-task-btn">Create</button>
             </div>
         </form>
+    </dialog>
+    <dialog id="delete-dialog" class="delete-dialog">
+        <div class="delete-container">
+            <p>
+                Are you sure you want to delete the 
+                <span id="delete-title"></span> 
+                <span id="delete-type"></span>?
+            </p>
+            <div class="form-row">
+                <button id="delete-close-btn">No</button>
+                <button id="delete-confirm-btn">Yes</button>
+            </div>
+        </div>
     </dialog>
 </body>
 </html>
