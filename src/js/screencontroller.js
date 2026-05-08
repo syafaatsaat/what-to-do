@@ -5,6 +5,9 @@ class DialogManager {
         
         this.deleteDialog = document.querySelector("#delete-dialog");
 
+        this.taskDialog = document.querySelector("#task-dialog");
+        this.taskForm = document.querySelector("#task-form");
+
         this.setupEvents();
     }
 
@@ -44,6 +47,14 @@ class DialogManager {
 
     closeDeleteModal() {
         this.deleteDialog.close();
+    }
+
+    openTaskModal() {
+        this.taskDialog.showModal();
+    }
+
+    closeTaskModal() {
+        this.taskDialog.close();
     }
 }
 
@@ -234,7 +245,15 @@ export class ScreenController {
         });
 
         // todo: task buttons listeners
-
+        this.newTaskBtn.addEventListener("click", () => {
+            this.dialogManager.openTaskModal();
+        });
+        this.cancelTaskBtn.addEventListener("click", () => {
+            this.dialogManager.closeTaskModal();
+        });
+        this.taskDiv.addEventListener("click", (e) => {
+            
+        });
     }
 
     init() {
@@ -332,6 +351,47 @@ export class ScreenController {
         if (this.currentProjectID === project.id) {
             this.currentProjectID = null;
             this.renderer.renderTasks(null);
+        }
+
+        this.dialogManager.closeDeleteModal();
+    }
+
+    taskSubmitHandler(e) {
+        e.preventDefault();
+
+        const formData = Object.fromEntries(new FormData(this.taskForm));
+        const projectID = this.currentProjectID;
+
+        // edit
+        if (formData.taskId) {
+        }
+        else {
+            this.logic.createTask(projectID, formData);
+        }
+
+        this.dialogManager.closeTaskModal();
+        this.renderer.renderTasks(
+            this.logic.storage.getProjectByID(projectID), 
+            this.currentTaskID
+        );
+    }
+
+    deleteTaskHandler(e) {
+        e.preventDefault();
+        if (!e.target.dataset.taskId)
+            return;
+
+        const projectID = e.target.dataset.projectIdForTask;
+        const taskID = e.target.dataset.taskId;
+
+        if (!this.logic.deleteTask(projectID, taskID))
+            return;
+
+        if (!this.renderer.removeTaskView(taskID))
+            return;
+
+        if (taskID === this.currentTaskID) {
+            this.renderer.renderTaskDescription(null);
         }
 
         this.dialogManager.closeDeleteModal();
