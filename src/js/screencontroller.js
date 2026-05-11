@@ -26,6 +26,10 @@ class DialogManager {
             this.taskForm.reset();
             document.querySelector("#hidden-task-id").value = "";
         });
+        this.deleteDialog.addEventListener("close", () => {
+            document.querySelector("#delete-confirm-btn").dataset.taskId = "";
+            document.querySelector("#delete-confirm-btn").dataset.projectIdForTask = "";
+        });
     }
 
     openProjectModal() {
@@ -48,6 +52,14 @@ class DialogManager {
         document.querySelector("#delete-confirm-btn").dataset.projectId = project.id;
         document.querySelector("#delete-title").textContent = project.title;
         document.querySelector("#delete-type").textContent = "project";
+        this.deleteDialog.showModal();
+    }
+
+    openDeleteTaskModal(task, projectID) {
+        document.querySelector("#delete-confirm-btn").dataset.taskId = task.id;
+        document.querySelector("#delete-confirm-btn").dataset.projectIdForTask = projectID;
+        document.querySelector("#delete-title").textContent = task.title;
+        document.querySelector("#delete-type").textContent = "task";
         this.deleteDialog.showModal();
     }
 
@@ -153,7 +165,7 @@ class Renderer {
         project.tasks.forEach(task => {
             const taskElemDiv = document.createElement("div");
             taskElemDiv.dataset.taskId = task.id;
-            taskElemDiv.dataset.projectId = project.id;
+            taskElemDiv.dataset.projectIdForTask = project.id;
             taskElemDiv.classList.add("task");
             if (task.id === selectedTaskID) {
                 taskElemDiv.classList.add("active");
@@ -180,17 +192,17 @@ class Renderer {
 
             const checkBoxIcon = document.createElement("span");
             checkBoxIcon.classList.add("material-symbols-outlined");
-            checkBoxIcon.classList.add("checkbox-project-btn");
+            checkBoxIcon.classList.add("checkbox-task-btn");
             checkBoxIcon.textContent = "check_box";
 
             const editIcon = document.createElement("span");
             editIcon.classList.add("material-symbols-outlined");
-            editIcon.classList.add("edit-project-btn");
+            editIcon.classList.add("edit-task-btn");
             editIcon.textContent = "edit";
 
             const deleteIcon = document.createElement("span");
             deleteIcon.classList.add("material-symbols-outlined");
-            deleteIcon.classList.add("delete-project-btn");
+            deleteIcon.classList.add("delete-task-btn");
             deleteIcon.textContent = "delete";
 
             if (task.status) {
@@ -251,6 +263,17 @@ class Renderer {
 
         return true;
     }
+
+    removeTaskView(taskID) {
+        const taskElem = document.querySelector(`[data-task-id="${taskID}"]`);
+
+        if (!taskElem)
+            return;
+
+        taskElem.remove();
+
+        return true;
+    }
 }
 
 export class ScreenController {
@@ -305,7 +328,7 @@ export class ScreenController {
         // delete
         this.confirmDeleteBtn.addEventListener("click", (e) => {
             this.deleteProjectHandler(e);
-            // todo: deleteTaskHandler
+            this.deleteTaskHandler(e);
         });
         this.closeDeleteBtn.addEventListener("click", () => {
             this.dialogManager.closeDeleteModal();
@@ -319,7 +342,7 @@ export class ScreenController {
             this.dialogManager.closeTaskModal();
         });
         this.tasksDiv.addEventListener("click", (e) => {
-            
+            this.taskDivHandler(e);
         });
         this.taskForm.addEventListener("submit", (e) => {
             this.taskSubmitHandler(e);
@@ -446,6 +469,37 @@ export class ScreenController {
             this.logic.storage.getProjectByID(projectID), 
             this.currentTaskID
         );
+    }
+
+    taskDivHandler(e) {
+        e.preventDefault();
+
+        const taskBtn = e.target.closest(".task");
+        if (!taskBtn)
+            return;
+
+        const checkBoxBtn = e.target.closest(".checkbox-task-btn");
+        const editBtn = e.target.closest(".edit-task-btn");
+        const deleteBtn = e.target.closest(".delete-task-btn");
+
+        const project = this.logic.storage.getProjectByID(
+                            taskBtn.dataset.projectIdForTask
+                        );
+        const task = project.getTask(taskBtn.dataset.taskId);
+
+        if (checkBoxBtn) {
+            const updatedTask = this.logic.toggleTaskStatus(task);
+            return;
+        }
+        
+        if (editBtn) {
+            return;
+        }
+
+        if (deleteBtn) {
+            this.dialogManager.openDeleteTaskModal(task, project.id);
+            return;
+        }
     }
 
     deleteTaskHandler(e) {

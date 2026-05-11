@@ -41,4 +41,9 @@ export class Application {
 
         return true;
     }
+
+    toggleTaskStatus(task) {
+        task.status = !task.status;
+        return task;
+    }
 }
