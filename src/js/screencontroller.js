@@ -20,6 +20,12 @@ class DialogManager {
         this.deleteDialog.addEventListener("close", () => {
             document.querySelector("#delete-confirm-btn").dataset.projectId = "";
         });
+
+        // task
+        this.taskDialog.addEventListener("close", () => {
+            this.taskForm.reset();
+            document.querySelector("#hidden-task-id").value = "";
+        });
     }
 
     openProjectModal() {
@@ -61,7 +67,7 @@ class DialogManager {
 class Renderer {
     constructor() {
         this.projectsDiv = document.querySelector("#project-list");
-        this.taskDiv = document.querySelector("#tasks");
+        this.tasksDiv = document.querySelector("#tasks");
     }
 
     renderProjects(projectArray, currentProjectID) {
@@ -125,7 +131,7 @@ class Renderer {
 
     renderTasks(project, selectedTaskID) {
         const newTaskBtn = document.querySelector("#new-task-btn");
-        this.taskDiv.replaceChildren();
+        this.tasksDiv.replaceChildren();
 
         if (!project) {
             document.querySelector("#current-project").textContent = "";
@@ -138,12 +144,73 @@ class Renderer {
         if (!project.tasks) {
             const noTaskP = document.createElement("p");
             noTaskP.textContent = "No task for now :)";
-            this.taskDiv.appendChild(noTaskP);
+            this.tasksDiv.appendChild(noTaskP);
 
             return;
         }
 
         // todo: render every task from project.tasks
+        project.tasks.forEach(task => {
+            const taskElemDiv = document.createElement("div");
+            taskElemDiv.dataset.taskId = task.id;
+            taskElemDiv.dataset.projectId = project.id;
+            taskElemDiv.classList.add("task");
+            if (task.id === selectedTaskID) {
+                taskElemDiv.classList.add("active");
+            }
+
+            const titleDiv = document.createElement("div");
+            titleDiv.classList.add("task-title-container");
+
+            const titleH4 = document.createElement("h4");
+            titleH4.classList.add("task-title");
+            titleH4.textContent = task.title;
+
+            const priorityDiv = document.createElement("div");
+            priorityDiv.classList.add(task.priority);
+            priorityDiv.classList.add("task-priority");
+            priorityDiv.textContent = task.priority;
+
+            const descriptionP = document.createElement("p");
+            descriptionP.classList.add("task-description");
+            descriptionP.textContent = task.description;
+
+            const iconsDiv = document.createElement("div");
+            iconsDiv.classList.add("icon-container");
+
+            const checkBoxIcon = document.createElement("span");
+            checkBoxIcon.classList.add("material-symbols-outlined");
+            checkBoxIcon.classList.add("checkbox-project-btn");
+            checkBoxIcon.textContent = "check_box";
+
+            const editIcon = document.createElement("span");
+            editIcon.classList.add("material-symbols-outlined");
+            editIcon.classList.add("edit-project-btn");
+            editIcon.textContent = "edit";
+
+            const deleteIcon = document.createElement("span");
+            deleteIcon.classList.add("material-symbols-outlined");
+            deleteIcon.classList.add("delete-project-btn");
+            deleteIcon.textContent = "delete";
+
+            if (task.status) {
+                taskElemDiv.classList.add("completed");
+            }
+
+            titleDiv.appendChild(titleH4);
+            titleDiv.appendChild(priorityDiv);
+
+            taskElemDiv.appendChild(titleDiv);
+            taskElemDiv.appendChild(descriptionP);
+
+            iconsDiv.appendChild(checkBoxIcon);
+            iconsDiv.appendChild(editIcon);
+            iconsDiv.appendChild(deleteIcon);
+
+            taskElemDiv.appendChild(iconsDiv);
+            
+            this.tasksDiv.appendChild(taskElemDiv);
+        });
     }
 
     renderTaskDescription(task) {
@@ -207,10 +274,10 @@ export class ScreenController {
         this.closeDeleteBtn = document.querySelector("#delete-close-btn");
 
         // tasks
-        this.taskDiv = document.querySelector("#tasks");
+        this.tasksDiv = document.querySelector("#tasks");
         this.newTaskBtn = document.querySelector("#new-task-btn");
-        this.cancelTaskBtn = document.querySelector("#task-close-btn");
-        this.createTaskBtn = document.querySelector("#task-create-btn");
+        this.cancelTaskBtn = document.querySelector("#cancel-task-btn");
+        this.createTaskBtn = document.querySelector("#create-task-btn");
         this.taskForm = document.querySelector("#task-form");
 
         this.setupEvents();
@@ -251,9 +318,13 @@ export class ScreenController {
         this.cancelTaskBtn.addEventListener("click", () => {
             this.dialogManager.closeTaskModal();
         });
-        this.taskDiv.addEventListener("click", (e) => {
+        this.tasksDiv.addEventListener("click", (e) => {
             
         });
+        this.taskForm.addEventListener("submit", (e) => {
+            this.taskSubmitHandler(e);
+        });
+
     }
 
     init() {
@@ -365,6 +436,7 @@ export class ScreenController {
         // edit
         if (formData.taskId) {
         }
+        // create task
         else {
             this.logic.createTask(projectID, formData);
         }
