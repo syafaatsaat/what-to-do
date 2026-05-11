@@ -458,6 +458,21 @@ export class ScreenController {
 
         // edit
         if (formData.taskId) {
+            if (!this.logic.editTask(projectID, formData.taskID, formData))
+                return;
+
+            const project = this.logic.storage.getProjectByID(projectID);
+            const task = project.getTask(formData.taskID);
+
+            if (!this.renderer.updatedTask(task))
+                return;
+
+            if (this.currentTaskID === task.id) {
+                this.renderer.renderTaskDescription(task);
+            }
+
+            this.dialogManager.closeTaskModal();
+            return;
         }
         // create task
         else {
@@ -500,6 +515,20 @@ export class ScreenController {
             this.dialogManager.openDeleteTaskModal(task, project.id);
             return;
         }
+
+        if (taskBtn) {
+            if (this.currentTaskID === taskBtn.dataset.taskId) {
+                this.currentTaskID = null;
+                this.toggleTaskState();
+                return;
+            }
+
+            if (this.renderer.renderTaskDescription(task)) {
+                this.currentTaskID = task.id;
+                this.swapTaskState(task.id);
+                return;
+            }
+        }
     }
 
     deleteTaskHandler(e) {
@@ -521,5 +550,25 @@ export class ScreenController {
         }
 
         this.dialogManager.closeDeleteModal();
+    }
+
+    swapTaskState(taskID) {
+        const previousTask = this.tasksDiv.querySelector(".active");
+        if (previousTask) {
+            previousTask.classList.remove("active");
+        }
+
+        const newTask = this.tasksDiv.querySelector(`[data-task-id="${taskID}"]`);
+        if (newTask) {
+            newTask.classList.add("active");
+        }
+    }
+
+    toggleTaskState() {
+        this.renderer.renderTaskDescription(null);
+        const task = this.tasksDiv.querySelector(".active");
+        if (task) {
+            task.classList.toggle("active");
+        }
     }
 }
