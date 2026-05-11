@@ -34,6 +34,8 @@ class DialogManager {
 
     openProjectModal() {
         document.querySelector("#create-project-btn").textContent = "Create";
+        document.querySelector(
+            "#project-form-header").textContent = "New Project";
         this.projectDialog.showModal();
     }
     
@@ -43,6 +45,8 @@ class DialogManager {
     
     openProjectModalForEdit(project) {
         document.querySelector("#create-project-btn").textContent = "Save";
+        document.querySelector(
+            "#project-form-header").textContent = "Edit Project";
         document.querySelector("#project-title").value = project.title;
         document.querySelector("#hidden-project-id").value = project.id;
         this.projectDialog.showModal();
@@ -68,8 +72,21 @@ class DialogManager {
     }
 
     openTaskModal() {
+        document.querySelector("#create-task-btn").textContent = "Create";
+        document.querySelector("#task-form-header").textContent = "New Task";
         this.taskDialog.showModal();
     }
+    
+    openTaskModalForEdit(task) {
+        document.querySelector("#create-task-btn").textContent = "Save";
+        document.querySelector("#task-form-header").textContent = "Edit Task";
+        document.querySelector("#task-title").value = task.title;
+        document.querySelector("#duedate").value = task.dueDate;
+        document.querySelector("#priority").value = task.priority;
+        document.querySelector("#task-description").value = task.description;
+        document.querySelector("#hidden-task-id").value = task.id;
+        this.taskDialog.showModal();
+    } 
 
     closeTaskModal() {
         this.taskDialog.close();
@@ -178,6 +195,10 @@ class Renderer {
             titleH4.classList.add("task-title");
             titleH4.textContent = task.title;
 
+            const dueDateP = document.createElement("p");
+            dueDateP.classList.add("task-due-date");
+            dueDateP.textContent = task.dueDate;
+
             const priorityDiv = document.createElement("div");
             priorityDiv.classList.add(task.priority);
             priorityDiv.classList.add("task-priority");
@@ -210,6 +231,7 @@ class Renderer {
             }
 
             titleDiv.appendChild(titleH4);
+            titleDiv.appendChild(dueDateP);
             titleDiv.appendChild(priorityDiv);
 
             taskElemDiv.appendChild(titleDiv);
@@ -256,10 +278,44 @@ class Renderer {
         descriptionSpan.textContent = task.description;
         descriptionH4.appendChild(descriptionSpan);
 
+        const statusH4 = document.createElement("h4");
+        statusH4.textContent = "Status: ";
+        const statusSpan = document.createElement("span");
+        statusSpan.textContent = task.status ? "Completed" : "In-progress";
+        statusH4.appendChild(statusSpan);
+
         descriptionDiv.appendChild(titleH4);
+        descriptionDiv.appendChild(statusH4);
         descriptionDiv.appendChild(dueDateH4);
         descriptionDiv.appendChild(priorityH4);
         descriptionDiv.appendChild(descriptionH4);
+
+        return true;
+    }
+
+    updateTaskStatusView(taskID, status) {
+        const taskElem = document.querySelector(`[data-task-id="${taskID}"]`);
+        if (taskElem) {
+            taskElem.classList.toggle("completed", status);
+        }
+    }
+
+    updateTaskView(task) {
+        const taskElem = document.querySelector(`[data-task-id="${task.id}"]`);
+        if (!taskElem)
+            return;
+
+        const titleH4 = taskElem.querySelector(".task-title");
+        titleH4.textContent = task.title;
+
+        const dueDateP = taskElem.querySelector(".task-due-date");
+        dueDateP.textContent = task.dueDate;
+
+        const priorityDiv = taskElem.querySelector(".task-priority");
+        priorityDiv.textContent = task.priority;
+
+        const descriptionP = taskElem.querySelector(".task-description");
+        descriptionP.textContent = task.description;
 
         return true;
     }
@@ -456,15 +512,17 @@ export class ScreenController {
         const formData = Object.fromEntries(new FormData(this.taskForm));
         const projectID = this.currentProjectID;
 
+        console.log(formData);
+
         // edit
-        if (formData.taskId) {
+        if (formData.taskID) {
             if (!this.logic.editTask(projectID, formData.taskID, formData))
                 return;
 
             const project = this.logic.storage.getProjectByID(projectID);
             const task = project.getTask(formData.taskID);
 
-            if (!this.renderer.updatedTask(task))
+            if (!this.renderer.updateTaskView(task))
                 return;
 
             if (this.currentTaskID === task.id) {
@@ -504,10 +562,14 @@ export class ScreenController {
 
         if (checkBoxBtn) {
             const updatedTask = this.logic.toggleTaskStatus(task);
+            this.renderer.updateTaskStatusView(
+                updatedTask.id, updatedTask.status);
+            this.renderer.renderTaskDescription(updatedTask);
             return;
         }
         
         if (editBtn) {
+            this.dialogManager.openTaskModalForEdit(task);
             return;
         }
 

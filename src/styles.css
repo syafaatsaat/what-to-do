@@ -171,6 +171,10 @@ dialog[open] {
   width: 50%;
 }
 
+.completed {
+  color: lime;
+}
+
 /* .material-symbols-outlined {
   font-variation-settings:
     'FILL' 0,
