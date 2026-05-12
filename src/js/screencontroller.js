@@ -195,15 +195,39 @@ class Renderer {
             const titleH4 = document.createElement("h4");
             titleH4.classList.add("task-title");
             titleH4.textContent = task.title;
-
-            const dueDateP = document.createElement("p");
-            dueDateP.classList.add("task-due-date");
-            dueDateP.textContent = task.dueDate;
-
+            
             const priorityDiv = document.createElement("div");
             priorityDiv.classList.add(task.priority);
             priorityDiv.classList.add("task-priority");
             priorityDiv.textContent = task.priority;
+
+            if (task.priority === "low") {
+                priorityDiv.classList.add("low");
+                priorityDiv.classList.remove("medium");
+                priorityDiv.classList.remove("high");
+            }
+            else if (task.priority === "medium") {
+                priorityDiv.classList.remove("low");
+                priorityDiv.classList.add("medium");
+                priorityDiv.classList.remove("high");
+            }
+            else {
+                priorityDiv.classList.remove("low");
+                priorityDiv.classList.remove("medium");
+                priorityDiv.classList.add("high");
+            }
+
+            const dueDateDiv = document.createElement("div");
+            dueDateDiv.classList.add("task-due-date");
+            
+            const calendarClockIcon = document.createElement("span");
+            calendarClockIcon.classList.add("material-symbols-outlined");
+            calendarClockIcon.classList.add("calendar-clock-icon");
+            calendarClockIcon.textContent = "calendar_clock";
+
+            const dueDateP = document.createElement("p");
+            dueDateP.classList.add("due-date-text");
+            dueDateP.textContent = task.dueDate;
 
             const descriptionP = document.createElement("p");
             descriptionP.classList.add("task-description");
@@ -232,10 +256,13 @@ class Renderer {
             }
 
             titleDiv.appendChild(titleH4);
-            titleDiv.appendChild(dueDateP);
             titleDiv.appendChild(priorityDiv);
 
+            dueDateDiv.appendChild(calendarClockIcon);
+            dueDateDiv.appendChild(dueDateP);
+            
             taskElemDiv.appendChild(titleDiv);
+            taskElemDiv.appendChild(dueDateDiv);
             taskElemDiv.appendChild(descriptionP);
 
             iconsDiv.appendChild(checkBoxIcon);
@@ -309,7 +336,7 @@ class Renderer {
         const titleH4 = taskElem.querySelector(".task-title");
         titleH4.textContent = task.title;
 
-        const dueDateP = taskElem.querySelector(".task-due-date");
+        const dueDateP = taskElem.querySelector(".due-date-text");
         dueDateP.textContent = task.dueDate;
 
         const priorityDiv = taskElem.querySelector(".task-priority");
@@ -565,7 +592,9 @@ export class ScreenController {
             const updatedTask = this.logic.toggleTaskStatus(task);
             this.renderer.updateTaskStatusView(
                 updatedTask.id, updatedTask.status);
-            this.renderer.renderTaskDescription(updatedTask);
+            if (this.currentTaskID === taskBtn.dataset.taskId) {
+                this.renderer.renderTaskDescription(updatedTask);
+            }
             return;
         }
         
