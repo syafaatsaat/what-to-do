@@ -117,7 +117,7 @@ class Renderer {
             titleSpan.classList.add("project-title");
 
             const iconsDiv = document.createElement("div");
-            iconsDiv.classList.add("icons");
+            iconsDiv.classList.add("icon-project");
 
             const editIcon = document.createElement("span");
             editIcon.classList.add("material-symbols-outlined");
@@ -170,6 +170,7 @@ class Renderer {
         
         document.querySelector("#current-project").textContent = project.title;
         newTaskBtn.disabled = false;
+        newTaskBtn.hidden = false;
         if (!project.tasks) {
             const noTaskP = document.createElement("p");
             noTaskP.textContent = "No task for now :)";
@@ -177,8 +178,6 @@ class Renderer {
 
             return;
         }
-
-        console.log(project);
 
         // todo: render every task from project.tasks
         project.tasks.forEach(task => {
@@ -211,7 +210,7 @@ class Renderer {
             descriptionP.textContent = task.description;
 
             const iconsDiv = document.createElement("div");
-            iconsDiv.classList.add("icon-container");
+            iconsDiv.classList.add("icon-task");
 
             const checkBoxIcon = document.createElement("span");
             checkBoxIcon.classList.add("material-symbols-outlined");
