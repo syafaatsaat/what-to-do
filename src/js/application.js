@@ -1,5 +1,5 @@
-import { Project } from "./project.js";
 import { Task } from "./task.js";
+import { Project } from "./project.js";
 
 export class Application {
     constructor(storage) {
@@ -9,6 +9,7 @@ export class Application {
     createProject(data) {
         let project = new Project(data);
         this.storage.addProject(project);
+        this.storage.updateLocalStorage();
         return project;
     }
 
@@ -18,6 +19,7 @@ export class Application {
             project.title = data.title;
         }
 
+        this.storage.updateLocalStorage();
         return true;
     }
 
@@ -25,6 +27,7 @@ export class Application {
         if (!this.storage.deleteProject(projectID))
             return;
 
+        this.storage.updateLocalStorage();
         return true;
     }
 
@@ -32,6 +35,7 @@ export class Application {
         let project = this.storage.getProjectByID(projectID);
         let task = new Task(data);
         project.addTask(task);
+        this.storage.updateLocalStorage();
     }
 
     editTask(projectID, taskID, data) {
@@ -58,6 +62,7 @@ export class Application {
         if (data.status !== undefined)
             task.status = data.status;
 
+        this.storage.updateLocalStorage();
         return true;
     }
 
@@ -66,11 +71,13 @@ export class Application {
         if (!project.deleteTask(taskID))
             return;
 
+        this.storage.updateLocalStorage();
         return true;
     }
 
     toggleTaskStatus(task) {
         task.status = !task.status;
+        this.storage.updateLocalStorage();
         return task;
     }
 }

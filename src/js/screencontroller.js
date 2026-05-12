@@ -178,6 +178,8 @@ class Renderer {
             return;
         }
 
+        console.log(project);
+
         // todo: render every task from project.tasks
         project.tasks.forEach(task => {
             const taskElemDiv = document.createElement("div");
