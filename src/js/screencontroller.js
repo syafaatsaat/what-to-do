@@ -297,10 +297,28 @@ class Renderer {
         const priorityH4 = document.createElement("h4");
         priorityH4.textContent = "Priority: ";
         const prioritySpan = document.createElement("span");
+        prioritySpan.classList.add("description-priority");
         prioritySpan.textContent = task.priority;
         priorityH4.appendChild(prioritySpan);
 
+        if (task.priority === "low") {
+            prioritySpan.classList.add("low");
+            prioritySpan.classList.remove("medium");
+            prioritySpan.classList.remove("high");
+        }
+        else if (task.priority === "medium") {
+            prioritySpan.classList.remove("low");
+            prioritySpan.classList.add("medium");
+            prioritySpan.classList.remove("high");
+        }
+        else {
+            prioritySpan.classList.remove("low");
+            prioritySpan.classList.remove("medium");
+            prioritySpan.classList.add("high");
+        }
+
         const descriptionH4 = document.createElement("h4");
+        descriptionH4.classList.add("description-desc");
         descriptionH4.textContent = "Description: ";
         const descriptionSpan = document.createElement("span");
         descriptionSpan.textContent = task.description;
@@ -310,6 +328,13 @@ class Renderer {
         statusH4.textContent = "Status: ";
         const statusSpan = document.createElement("span");
         statusSpan.textContent = task.status ? "Completed" : "In-progress";
+        
+        if (task.status) {
+            statusSpan.classList.add("completed");
+        }
+        else {
+            statusSpan.classList.remove("completed");
+        }
         statusH4.appendChild(statusSpan);
 
         descriptionDiv.appendChild(titleH4);

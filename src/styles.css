@@ -209,7 +209,7 @@ textarea {
 .task {
   height: 200px;
   padding: 20px;
-  border: 1px solid var(--border-color);
+  border: 2px solid var(--border-color);
   border-radius: 10px;
   
   background-color: var(--task-bg-color);
@@ -284,6 +284,23 @@ textarea {
   color: var(--light-gray);
 }
 
+.task.completed {
+  border: 2px dashed var(--border-color);
+}
+
+.task.completed .due-date-text,
+.task.completed .task-title,
+.task.completed .task-description,
+.task.completed .task-priority {
+  color: var(--light-gray);
+  text-decoration: line-through;
+}
+
+.task.completed .task-priority {
+  background-color: var(--light-gray);
+  color: var(--dark-grey);
+}
+
 .completed .checkbox-task-btn {
   color: lime;
 }
@@ -302,8 +319,43 @@ textarea {
   grid-row: 2 / 3;
 
   padding: 20px;
-  color: var(--light-gray);
   border-left: 1px solid var(--border-color);
+}
+
+#description h4 {
+  color: var(--light-gray);
+  font-weight: 400;
+}
+
+#description span {
+  color: white;
+  font-weight: bold;
+}
+
+.description-priority {
+  text-transform: capitalize;
+}
+
+.description-desc {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#description .completed {
+  color: var(--completed-color);
+}
+
+#description .low {
+  color: rgb(0, 177, 0);
+}
+
+#description .medium {
+  color: var(--medium-priority-text-color);
+}
+
+#description .high {
+  color: rgb(255, 35, 35);
 }
 
 /* FOOTER ------------------------------------------------------------------ */
