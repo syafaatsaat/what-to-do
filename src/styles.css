@@ -371,38 +371,58 @@ textarea {
   align-items: center;
 }
 
+#footer > p {
+  color: var(--light-gray);
+}
+
+#footer a {
+  font-weight: bold;
+  color: var(--other-project-color);
+  text-decoration: none;
+}
+
 /* DIALOG & FORMS ---------------------------------------------------------- */
 
 dialog[open] {
   min-width: 100%;
   min-height: 100%;
   position: fixed;
-  background-color: rgba(0, 0, 0, 0.5);
+  
+  background-color: rgba(29, 29, 29, 0.4);
   border: 0;
   padding: 0;
   margin: 0;
+  
   display: flex;
   justify-content: center;
   align-items: center;
+
+  font-family: "Google Sans", sans-serif;
+  font-style: normal;
+  font-weight: 400;
 }
 
 #project-form {
   width: 400px;
-  height: 150px;
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   padding: 20px;
+  
+  justify-content: space-between;
 }
 
 #task-form {
   width: 400px;
-  height: 400px;
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   padding: 20px;
-  
+  gap: 20px;
+}
+
+#project-form,
+#task-form,
+.delete-container {
+  background-color: var(--light-black);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 20px;
+
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -415,6 +435,45 @@ dialog[open] {
 .form-col {
   display: flex;
   flex-direction: column;
+  gap: 5px;
+
+  color: white;
+  font-size: 18px;
+}
+
+.form-col label {
+  font-size: 16px;
+  color: var(--light-gray)
+}
+
+.form-col input {
+  background-color: var(--dark-grey);
+  color: white;
+  font-size: 18px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 5px;
+}
+
+.form-col select {
+  background-color: var(--dark-grey);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  font-size: 18px;
+  padding: 5px;
+  color: white;
+
+  cursor: pointer;
+}
+
+.form-col #task-description {
+  height: 100px;
+}
+
+.form-col input[type="date"] {
+  color: white;
+
+  cursor: pointer;
 }
 
 .form-row {
@@ -425,4 +484,26 @@ dialog[open] {
 
 .form-row > * {
   width: 50%;
+}
+
+form button,
+.delete-container button {
+  background-color: var(--dark-grey);
+  color: white;
+  height: 40px;
+  font-size: 18px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+
+  cursor: pointer;
+}
+
+.delete-container {
+  padding: 20px;
+}
+
+#delete-title {
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
 }
